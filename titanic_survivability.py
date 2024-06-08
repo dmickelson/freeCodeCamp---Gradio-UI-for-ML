@@ -14,7 +14,7 @@ data = data.astype({"age": np.float64, "fare": np.float64})
 
 def plot(data: pd.DataFrame, progress=gr.Progress()):
     progress(0)
-    fig, axs = plt.subplots(nrows=5, ncols=1, figsize=(5, 30))
+    fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(30, 5))
     sns.violinplot(x="survived", y="age", hue="sex", data=data, ax=axs[0])
     progress(.2)
     sns.pointplot(x="sibsp", y="survived", hue="sex", data=data, ax=axs[1])
@@ -36,6 +36,9 @@ def plot(data: pd.DataFrame, progress=gr.Progress()):
     survived_corr = data.corr(method='pearson', numeric_only=True).abs()[
         ["survived"]]
 
+    survived_corr = survived_corr.reset_index().dropna(
+    ).sort_values(by="survived", ascending=False)
+
     # Training Dataset
     # data = data[['sex', 'pclass', 'age','relatives', 'fare', 'survived']].dropna()
 
@@ -43,8 +46,8 @@ def plot(data: pd.DataFrame, progress=gr.Progress()):
 
 
 inputs = [gr.Dataframe(label="Titanic Survivor Data", value=data)]
-outputs = [gr.Gallery(label="Profiling Dashboard", height='auto'),
-           gr.DataFrame(label="Suvived Correlation")]
+outputs = [gr.Gallery(label="Profiling Dashboard", type="filepath"),
+           gr.DataFrame(label="Suvived Correlation ranked by importance")]
 
 gr.Interface(
     fn=plot,
